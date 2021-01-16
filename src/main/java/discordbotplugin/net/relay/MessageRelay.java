@@ -72,7 +72,14 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 		
 		for (String id: channels) {
 			if (id.equals(event.getTextChannel().getId()) && !event.getMessage().getContentDisplay().contains(minecraftPrefix)) {
-				String message = "&9" + discordPrefix + " &3" + event.getAuthor().getName() + " ->" + " &f" + event.getMessage().getContentDisplay();
+				String message = "&9" 
+						+ discordPrefix 
+						+ " &3" 
+						+ event.getAuthor().getName() 
+						+ " ->" 
+						+ " &f" 
+						+ event.getMessage().getContentDisplay();
+				
 				String message2 = ChatColor.translateAlternateColorCodes('&', message);
 				Bukkit.broadcastMessage(message2);
 				
@@ -100,7 +107,13 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent e) {
 		if (!e.getMessage().startsWith(discordPrefix)) {
-			String preMessage = DiscordUtilities.format(minecraftPrefix, "bold") + " " + "<:speech_balloon:691393503124520980> " + DiscordUtilities.format(e.getPlayer().getName(), "italics") + " " + DiscordUtilities.format("->", "bold") + " ";
+			String preMessage = DiscordUtilities.format(minecraftPrefix, "bold") 
+					+ " " 
+					+ "<:speech_balloon:691393503124520980> " 
+					+ DiscordUtilities.format(e.getPlayer().getName(), "italics") 
+					+ " " 
+					+ DiscordUtilities.format("->", "bold") 
+					+ " ";
 			String message = e.getMessage();
 			
 			Pattern pattern = Pattern.compile("(:\\w*:)");
