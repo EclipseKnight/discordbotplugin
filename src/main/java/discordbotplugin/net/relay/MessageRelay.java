@@ -278,6 +278,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 				p2 = Bukkit.getPlayer(id).getName() + ", ";
 			}
 		}
+		
 		p2 = p2.substring(0, p2.lastIndexOf(',')) + ".";
 		
 		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p1));
@@ -288,6 +289,10 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	
 	@EventHandler
 	public void onRaidStop(RaidStopEvent e) {
+		if (e.getReason() == RaidStopEvent.Reason.FINISHED) {
+			return;
+		}
+		
 		Raid r = e.getRaid();
 		
 		String message = DiscordUtilities.format(minecraftPrefix, "bold") 
@@ -295,7 +300,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 				+ " " 
 				+ DiscordUtilities.format("Raid", "italics") 
 				+ " " 
-				+ DiscordUtilities.format("->", "bold") + " The raid has been lost <:skull_crossbones:690567471618457631>";
+				+ DiscordUtilities.format("->", "bold") + " The raid has stopped. Reason: " + e.getReason() + " <:skull_crossbones:690567471618457631>";
 		
 		String p1 = "&6&lThe raid has been lost. These heroes were defeated...";
 		String p2 = "&a&n";
