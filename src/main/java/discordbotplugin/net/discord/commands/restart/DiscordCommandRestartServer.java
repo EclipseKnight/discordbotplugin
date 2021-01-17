@@ -11,10 +11,6 @@ public class DiscordCommandRestartServer extends Command {
 
 	public DiscordCommandRestartServer() {
 		this.name = "server";
-		this.hidden = true;
-		this.ownerCommand = true;
-		
-		
 	}
 	
 	@Override

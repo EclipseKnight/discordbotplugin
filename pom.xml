@@ -6,7 +6,6 @@
 	<artifactId>discordbotplugin</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-
 	<name>Discord-Bot</name>
 
 	<properties>
@@ -46,9 +45,7 @@
 			<artifactId>JDA</artifactId>
 			<version>4.2.0_180</version>
 		</dependency>
-		<!-- <dependency> <groupId>net.dv8tion</groupId> <artifactId>JDA</artifactId> 
-			<version>4.1.1_112</version> </dependency> -->
-		<!-- JDA Utilities -->
+		
 		<dependency>
 			<groupId>com.jagrosh</groupId>
 			<artifactId>jda-utilities</artifactId>
@@ -71,7 +68,6 @@
 			<artifactId>commons-configuration</artifactId>
 			<version>1.10</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.slf4j</groupId>

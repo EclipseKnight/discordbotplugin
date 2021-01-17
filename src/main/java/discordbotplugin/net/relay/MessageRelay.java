@@ -69,16 +69,16 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 			return;
 		}
 		
-		
+		// send in all the relay channels.
 		for (String id: channels) {
 			if (id.equals(event.getTextChannel().getId()) && !event.getMessage().getContentDisplay().contains(minecraftPrefix)) {
-				String message = "&9" 
-						+ discordPrefix 
-						+ " &3" 
-						+ event.getAuthor().getName() 
-						+ " ->" 
-						+ " &f" 
-						+ event.getMessage().getContentDisplay();
+				String message = String.format("""
+						&9%s &3%s -> &f%s
+						""", 
+						discordPrefix,
+						event.getAuthor().getName(),
+						event.getMessage().getContentDisplay());
+				
 				
 				String message2 = ChatColor.translateAlternateColorCodes('&', message);
 				Bukkit.broadcastMessage(message2);
@@ -107,32 +107,30 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent e) {
 		if (!e.getMessage().startsWith(discordPrefix)) {
-			String preMessage = DiscordUtilities.format(minecraftPrefix, "bold") 
-					+ " " 
-					+ "<:speech_balloon:691393503124520980> " 
-					+ DiscordUtilities.format(e.getPlayer().getName(), "italics") 
-					+ " " 
-					+ DiscordUtilities.format("->", "bold") 
-					+ " ";
+			
+			
+			String preMessage = String.format("""
+					**%s** <:speech_balloon:691393503124520980> *%s* **->** 
+					""", 
+					minecraftPrefix,
+					e.getPlayer().getName());
+			
 			String message = e.getMessage();
 			
 			Pattern pattern = Pattern.compile("(:\\w*:)");
 			Matcher matcher = pattern.matcher(message);
-			
 			
 			while (matcher.find()) {
 				Emote emote = DiscordUtilities.getGuildEmote(matcher.group().replaceAll(":", ""), false);
 				
 				if (emote != null) {
 					message = message.replaceAll(matcher.group(), emote.getAsMention());
-//					System.out.println(emote.getAsMention());
 				} else {
 					Logger.log(Level.ERROR, "Emote not found");
 				}
 			}
 			
-			
-			DiscordUtilities.sendRelayMessage(preMessage + message + " ");
+			DiscordUtilities.sendRelayMessage(preMessage + " " + message);
 			
 			e.setFormat(ChatColor.GOLD + e.getPlayer().getDisplayName() + ": " + ChatColor.GRAY + e.getMessage());
 		}
@@ -140,24 +138,25 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
-		String message = DiscordUtilities.format(minecraftPrefix, "bold") 
-				+ " " 
-				+ DiscordUtilities.format(e.getEntity().getName(), "italics") 
-				+ " " 
-				+ DiscordUtilities.format("->", "bold") 
-				+ " " 
-				+ DiscordUtilities.format(e.getDeathMessage(), "bold")
-				+ " <:skull_crossbones:690567471618457631>";
+		String message = String.format("""
+				**%s** *%s* **->** **%s** <:skull_crossbones:690567471618457631>
+				""", 
+				minecraftPrefix,
+				e.getEntity().getName(),
+				e.getDeathMessage());
+		
 		DiscordUtilities.sendRelayMessage(message);
 	}
 	
 	@EventHandler
 	public void onPlayerLogin(PlayerLoginEvent e) {
-		String message = DiscordUtilities.format(minecraftPrefix, "bold") 
-				+ " " 
-				+ DiscordUtilities.format("<:inbox_tray:690567153371447327> Login -> " + e.getPlayer().getName(), "italics") 
-				+ " " 
-				+ DiscordUtilities.format("->", "bold") + " " + e.getResult();
+		
+		String message = String.format("""
+				**%s** *<:inbox_tray:690567153371447327> Login -> %s* **->** %s
+				""",
+				minecraftPrefix,
+				e.getPlayer().getName(),
+				e.getResult());
 		
 		DiscordUtilities.sendRelayMessage(message);
 		DiscordUtilities.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()+1) + " player(s)");
@@ -165,22 +164,22 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	
 	@EventHandler
 	public void onPlayerLogout(PlayerQuitEvent e) {
-		String message = DiscordUtilities.format(minecraftPrefix, "bold") 
-				+ " " 
-				+ DiscordUtilities.format("<:outbox_tray:690566847774457857> Logout -> " + e.getPlayer().getName(), "italics") 
-				+ " " 
-				+ DiscordUtilities.format("->", "bold") + " " + "left the game";
+		String message = String.format("""
+				**%s** *<:outbox_tray:690566847774457857> Login -> %s* **->** left the game
+				""",
+				minecraftPrefix,
+				e.getPlayer().getName());
 		
 		DiscordUtilities.sendRelayMessage(message);
 		DiscordUtilities.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()-1) + " player(s)");
 	}
 	
 	public void OnPlayerKick(PlayerKickEvent e) {
-		String message = DiscordUtilities.format(minecraftPrefix, "bold") 
-				+ " " 
-				+ DiscordUtilities.format("<:boot:798924891961163817> Kicked -> " + e.getPlayer().getName(), "italics") 
-				+ " " 
-				+ DiscordUtilities.format("->", "bold") + " " + "left the game";
+		String message = String.format("""
+				**%s** *<:boot:798924891961163817> Kicked -> %s* **->** left the game
+				""",
+				minecraftPrefix,
+				e.getPlayer().getName());
 		
 		DiscordUtilities.sendRelayMessage(message);
 		DiscordUtilities.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()-1) + " player(s)");
@@ -189,11 +188,13 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	@EventHandler
 	public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e) {
 		if(e.getAdvancement().getKey().getKey().startsWith("story")) {
-			String message = DiscordUtilities.format(minecraftPrefix, "bold") 
-					+ " " 
-					+ DiscordUtilities.format("<:trophy:690738524659646485> Advancement -> " + e.getPlayer().getName(), "italics") 
-					+ " " 
-					+ DiscordUtilities.format("->", "bold") + " " + e.getAdvancement().getKey().getKey();
+			String message = String.format("""
+					**%s** *<:trophy:690738524659646485> Advancement -> %s* **%s**
+					""",
+					minecraftPrefix,
+					e.getPlayer().getName(),
+					e.getAdvancement().getKey().getKey());
+		
 			DiscordUtilities.sendRelayMessage(message);
 		}
 		
