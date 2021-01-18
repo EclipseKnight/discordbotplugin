@@ -34,6 +34,7 @@ public class Launcher extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
+		DiscordBot.jda.shutdown();
 		DiscordUtilities.sendRelayMessage(DiscordUtilities.format(MessageRelay.minecraftPrefix, "bold") + " SERVER SHUTDOWN <:red_circle:690600907666358314>");
 	}
 }
