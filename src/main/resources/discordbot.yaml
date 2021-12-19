@@ -29,6 +29,8 @@ co_owner_ids:
 
 guild_id:
 
+store_bot_id:
+
 # Commands - to allow usage for all channels and or roles, set first value in array to null.  
 features:
 

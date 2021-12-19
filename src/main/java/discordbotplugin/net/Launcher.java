@@ -4,7 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.fusesource.jansi.AnsiConsole;
 
 import discordbotplugin.net.discord.DiscordBot;
-import discordbotplugin.net.discord.DiscordUtilities;
+import discordbotplugin.net.discord.DiscordUtils;
 import discordbotplugin.net.relay.MessageRelay;
 
 public class Launcher extends JavaPlugin {
@@ -29,12 +29,12 @@ public class Launcher extends JavaPlugin {
 		
 		discordBot = new DiscordBot();
 		
-		DiscordUtilities.sendRelayMessage(DiscordUtilities.format(MessageRelay.minecraftPrefix, "bold") + " SERVER STARTED <:green_circle:690600732113502239>");
+		DiscordUtils.sendRelayMessage(DiscordUtils.format(MessageRelay.minecraftPrefix, "bold") + " SERVER STARTED <:green_circle:690600732113502239>");
 	}
 	
 	@Override
 	public void onDisable() {
-		DiscordBot.jda.shutdown();
-		DiscordUtilities.sendRelayMessage(DiscordUtilities.format(MessageRelay.minecraftPrefix, "bold") + " SERVER SHUTDOWN <:red_circle:690600907666358314>");
+		DiscordUtils.sendRelayMessage(DiscordUtils.format(MessageRelay.minecraftPrefix, "bold") + " SERVER SHUTDOWN <:red_circle:690600907666358314>");
+		DiscordBot.jda.shutdownNow();
 	}
 }

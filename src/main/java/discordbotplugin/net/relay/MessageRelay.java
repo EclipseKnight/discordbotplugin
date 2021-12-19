@@ -39,7 +39,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import discordbotplugin.net.discord.DiscordBot;
-import discordbotplugin.net.discord.DiscordUtilities;
+import discordbotplugin.net.discord.DiscordUtils;
 import discordbotplugin.net.logger.Logger;
 import discordbotplugin.net.logger.Logger.Level;
 import net.dv8tion.jda.api.entities.Emote;
@@ -58,13 +58,18 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	
 	// Discord events
 	public void onMessageReceived(MessageReceivedEvent event) {
-		
+		// Checks if message is from guild and not private channel.
 		if (!event.isFromGuild()) {
 			return;
 		}
 		
-		List<String> channels = DiscordBot.configuration.getFeatures().get(feature).getChannels();
+		// Checks if message is from optional store bot plugin.
+		if (event.getMember() != null && event.getMember().getId().equals(DiscordBot.configuration.getStoreBotId())) {
+			return;
+		}
 		
+		// Checks if message is from appropraite channel.
+		List<String> channels = DiscordBot.configuration.getFeatures().get(feature).getChannels();
 		if (channels == null || channels.get(0) == null) {
 			return;
 		}
@@ -72,9 +77,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 		// send in all the relay channels.
 		for (String id: channels) {
 			if (id.equals(event.getTextChannel().getId()) && !event.getMessage().getContentDisplay().contains(minecraftPrefix)) {
-				String message = String.format("""
-						&9%s &3%s -> &f%s
-						""", 
+				String message = String.format("&9%s &3%s -> &f%s", 
 						discordPrefix,
 						event.getAuthor().getName(),
 						event.getMessage().getContentDisplay());
@@ -108,10 +111,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	public void onPlayerChat(AsyncPlayerChatEvent e) {
 		if (!e.getMessage().startsWith(discordPrefix)) {
 			
-			
-			String preMessage = String.format("""
-					**%s** <:speech_balloon:691393503124520980> *%s* **->** 
-					""", 
+			String preMessage = String.format("**%s** <:speech_balloon:691393503124520980> *%s* **->** ", 
 					minecraftPrefix,
 					e.getPlayer().getName());
 			
@@ -121,7 +121,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 			Matcher matcher = pattern.matcher(message);
 			
 			while (matcher.find()) {
-				Emote emote = DiscordUtilities.getGuildEmote(matcher.group().replaceAll(":", ""), false);
+				Emote emote = DiscordUtils.getGuildEmote(matcher.group().replaceAll(":", ""), false);
 				
 				if (emote != null) {
 					message = message.replaceAll(matcher.group(), emote.getAsMention());
@@ -130,7 +130,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 				}
 			}
 			
-			DiscordUtilities.sendRelayMessage(preMessage + " " + message);
+			DiscordUtils.sendRelayMessage(preMessage + message);
 			
 			e.setFormat(ChatColor.GOLD + e.getPlayer().getDisplayName() + ": " + ChatColor.GRAY + e.getMessage());
 		}
@@ -145,7 +145,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 				e.getEntity().getName(),
 				e.getDeathMessage());
 		
-		DiscordUtilities.sendRelayMessage(message);
+		DiscordUtils.sendRelayMessage(message);
 	}
 	
 	@EventHandler
@@ -158,8 +158,8 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 				e.getPlayer().getName(),
 				e.getResult());
 		
-		DiscordUtilities.sendRelayMessage(message);
-		DiscordUtilities.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()+1) + " player(s)");
+		DiscordUtils.sendRelayMessage(message);
+		DiscordUtils.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()+1) + " player(s)");
 	}
 	
 	@EventHandler
@@ -170,10 +170,11 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 				minecraftPrefix,
 				e.getPlayer().getName());
 		
-		DiscordUtilities.sendRelayMessage(message);
-		DiscordUtilities.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()-1) + " player(s)");
+		DiscordUtils.sendRelayMessage(message);
+		DiscordUtils.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()-1) + " player(s)");
 	}
 	
+	@EventHandler
 	public void OnPlayerKick(PlayerKickEvent e) {
 		String message = String.format("""
 				**%s** *<:boot:798924891961163817> Kicked -> %s* **->** left the game
@@ -181,8 +182,8 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 				minecraftPrefix,
 				e.getPlayer().getName());
 		
-		DiscordUtilities.sendRelayMessage(message);
-		DiscordUtilities.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()-1) + " player(s)");
+		DiscordUtils.sendRelayMessage(message);
+		DiscordUtils.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()-1) + " player(s)");
 	}
 	
 	@EventHandler
@@ -195,7 +196,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 					e.getPlayer().getName(),
 					e.getAdvancement().getKey().getKey());
 		
-			DiscordUtilities.sendRelayMessage(message);
+			DiscordUtils.sendRelayMessage(message);
 		}
 		
 	}
@@ -230,11 +231,11 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 		Raid r = e.getRaid();
 		Location loc = r.getLocation();
 		
-		String message = DiscordUtilities.format(minecraftPrefix, "bold") 
+		String message = DiscordUtils.format(minecraftPrefix, "bold") 
 				+ " " 
-				+ DiscordUtilities.format("<:crossed_swords:698730737045864448> Raid -> " + e.getPlayer().getName(), "italics")
+				+ DiscordUtils.format("<:crossed_swords:698730737045864448> Raid -> " + e.getPlayer().getName(), "italics")
 				+ " " 
-				+ DiscordUtilities.format("->", "bold") + " " + e.getPlayer().getName() + "has triggered a " + r.getBadOmenLevel() + " raid at (" + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ").";
+				+ DiscordUtils.format("->", "bold") + " " + e.getPlayer().getName() + "has triggered a " + r.getBadOmenLevel() + " raid at (" + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ").";
 		
 		String p1 = "&6" + e.getPlayer().getName() + "&4&lhas triggered a level " + (r.getBadOmenLevel()+1) + " raid at &c(" + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ")&4&l.";
 		String p2 = "&4Totals -> &cGroups: " + r.getTotalGroups() + ", Health: " + (r.getTotalHealth()+1) + ", Waves: " + r.getTotalWaves();
@@ -242,7 +243,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p1));
 		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p2));
 		
-		DiscordUtilities.sendRelayMessage(message);
+		DiscordUtils.sendRelayMessage(message);
 	}
 	
 	@EventHandler
@@ -263,12 +264,12 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	public void onRaidFinish(RaidFinishEvent e) {
 		Raid r = e.getRaid();
 		
-		String message = DiscordUtilities.format(minecraftPrefix, "bold") 
+		String message = DiscordUtils.format(minecraftPrefix, "bold") 
 				+ " <:crossed_swords:698730737045864448>" 
 				+ " " 
-				+ DiscordUtilities.format("Raid", "italics") 
+				+ DiscordUtils.format("Raid", "italics") 
 				+ " " 
-				+ DiscordUtilities.format("->", "bold") + " The raid has been completed <:trophy:690738524659646485>";
+				+ DiscordUtils.format("->", "bold") + " The raid has been completed <:trophy:690738524659646485>";
 		
 		String p1 = "&6&lThe raid has been completed! These heroes reign victorious...";
 		String p2 = "&a&n";
@@ -285,7 +286,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p1));
 		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p2));
 		
-		DiscordUtilities.sendRelayMessage(message);
+		DiscordUtils.sendRelayMessage(message);
 	}
 	
 	@EventHandler
@@ -296,12 +297,12 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 		
 		Raid r = e.getRaid();
 		
-		String message = DiscordUtilities.format(minecraftPrefix, "bold") 
+		String message = DiscordUtils.format(minecraftPrefix, "bold") 
 				+ " <:crossed_swords:698730737045864448>" 
 				+ " " 
-				+ DiscordUtilities.format("Raid", "italics") 
+				+ DiscordUtils.format("Raid", "italics") 
 				+ " " 
-				+ DiscordUtilities.format("->", "bold") + " The raid has stopped. Reason: " + e.getReason() + " <:skull_crossbones:690567471618457631>";
+				+ DiscordUtils.format("->", "bold") + " The raid has stopped. Reason: " + e.getReason() + " <:skull_crossbones:690567471618457631>";
 		
 		String p1 = "&6&lThe raid has been lost. These heroes were defeated...";
 		String p2 = "&a&n";
@@ -316,7 +317,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p1));
 		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p2));
 		
-		DiscordUtilities.sendRelayMessage(message);
+		DiscordUtils.sendRelayMessage(message);
 	}
 	
 	
@@ -332,7 +333,11 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) {
 		Inventory inven = e.getView().getTopInventory();
+		
+		if (inven == null) return; 
+		
 		Block block = inven.getLocation().getBlock();
+		
 		//check if its a furnace
 		if (inven != null && e.getWhoClicked() instanceof Player 
 				&& (inven.getType() == InventoryType.FURNACE || inven.getType() == InventoryType.BLAST_FURNACE || inven.getType() == InventoryType.SMOKER)) {

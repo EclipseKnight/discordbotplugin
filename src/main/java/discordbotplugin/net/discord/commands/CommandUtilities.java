@@ -6,7 +6,7 @@ import java.util.List;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
 import discordbotplugin.net.discord.DiscordBot;
-import discordbotplugin.net.discord.DiscordUtilities;
+import discordbotplugin.net.discord.DiscordUtils;
 import net.dv8tion.jda.api.entities.Role;
 
 public class CommandUtilities {
@@ -33,7 +33,7 @@ public class CommandUtilities {
 		}
 		
 		if (!reply.isEmpty()) {
-			DiscordUtilities.sendTimedMessaged(event, reply, 3000, false);
+			DiscordUtils.sendTimedMessaged(event, reply, 3000, false);
 		}
 		
 		return result;

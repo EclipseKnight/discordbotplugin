@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
 import net.dv8tion.jda.api.entities.Emote;
 
-public class DiscordUtilities {
+public class DiscordUtils {
 
 	
 	public static void sendTimedMessaged(CommandEvent event, String message, int ms, boolean isPrivate) {

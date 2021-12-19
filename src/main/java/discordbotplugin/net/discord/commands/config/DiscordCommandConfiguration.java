@@ -3,7 +3,7 @@ package discordbotplugin.net.discord.commands.config;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
-import discordbotplugin.net.discord.DiscordUtilities;
+import discordbotplugin.net.discord.DiscordUtils;
 
 public class DiscordCommandConfiguration extends Command {
 
@@ -14,7 +14,7 @@ public class DiscordCommandConfiguration extends Command {
 	
 	@Override
 	protected void execute(CommandEvent event) {
-		DiscordUtilities.sendTimedMessaged(event, "Invalid Arguments: config [list, ls] or [reload].", 5000, false);
+		DiscordUtils.sendTimedMessaged(event, "Invalid Arguments: config [list, ls] or [reload].", 5000, false);
 	}
 
 }

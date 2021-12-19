@@ -21,6 +21,8 @@ public class DiscordConfiguration {
 
 	private String guildId;
 	
+	private String storeBotId;
+	
 	private Map<String, DiscordFeature> features;
 
 	public Map<String, String> getBot() {
@@ -57,6 +59,14 @@ public class DiscordConfiguration {
 	
 	public String getGuildId() {
 		return guildId;
+	}
+	
+	public String getStoreBotId() {
+		return storeBotId;
+	}
+	
+	public void setStoreBotId(String storeBotId) {
+		this.storeBotId = storeBotId;
 	}
 	
 	public Map<String, DiscordFeature> getFeatures() {

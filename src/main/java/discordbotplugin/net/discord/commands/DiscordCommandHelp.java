@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
 import discordbotplugin.net.discord.DiscordBot;
-import discordbotplugin.net.discord.DiscordUtilities;
+import discordbotplugin.net.discord.DiscordUtils;
 
 public class DiscordCommandHelp implements Consumer<CommandEvent> {
 
@@ -30,7 +30,7 @@ public class DiscordCommandHelp implements Consumer<CommandEvent> {
 			}
 		}
 		
-		DiscordUtilities.sendMessage(event, message, true);
+		DiscordUtils.sendMessage(event, message, true);
 	}
 	
 	private boolean canUse(CommandEvent event, String feature) {

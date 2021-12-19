@@ -133,6 +133,7 @@ public class DiscordBot {
 		
 		// adds command client to listener. Commands use events will now be checked for on the discord server.
 		jda.addEventListener(cmdClient);
+		
 	}
 	
 	private void registerEvents() {

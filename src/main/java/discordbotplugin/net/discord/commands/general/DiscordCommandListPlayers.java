@@ -36,7 +36,7 @@ public class DiscordCommandListPlayers extends Command {
 			msg += p.getName() + ", ";
 		}
 		
-		event.reply(msg.substring(0, msg.lastIndexOf(", ")-1));
+		event.reply(msg.substring(0, msg.lastIndexOf(", ")));
 	}
 
 }
