@@ -96,7 +96,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 						event.getAuthor().getName(),
 						event.getMessage().getContentDisplay());
 				
-				if (mcp.isLinked()) {
+				if (mcp != null && mcp.isLinked()) {
 					message = String.format("&9%s &3%s[%s] -> &f%s", 
 							discordPrefix,
 							event.getAuthor().getName(),
