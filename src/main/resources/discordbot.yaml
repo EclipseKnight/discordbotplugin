@@ -95,6 +95,17 @@ features:
          - null
       roles:
          - null
+         
+   # list players  
+   discord_command_link:
+      enabled: true
+      name: link
+      aliases: []
+      description: Link your discord and minecraft account to be displayed together in the chats.
+      channels:
+         - null
+      roles:
+         - null
    
    # no roles needed. null means the relay will not post anywhere unlike the other commands. Must set atleast 1 channel to use.      
    discord_message_relay:

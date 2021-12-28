@@ -33,7 +33,7 @@ public class DiscordCommandExecute extends Command {
 
 		try {
 			if (!result.get()) {
-				event.reply("Command failed to execute.");
+				event.reply("Command failed to execute. /n" + "CMD: " + event.getArgs());
 			}
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();

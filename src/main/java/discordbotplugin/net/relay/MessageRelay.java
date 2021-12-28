@@ -38,6 +38,8 @@ import org.bukkit.inventory.ItemStack;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import discordbotplugin.net.database.JsonDB;
+import discordbotplugin.net.database.documents.MCPlayer;
 import discordbotplugin.net.discord.DiscordBot;
 import discordbotplugin.net.discord.DiscordUtils;
 import discordbotplugin.net.logger.Logger;
@@ -68,20 +70,39 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 			return;
 		}
 		
-		// Checks if message is from appropraite channel.
+		// Checks if message is from appropriate channel.
 		List<String> channels = DiscordBot.configuration.getFeatures().get(feature).getChannels();
 		if (channels == null || channels.get(0) == null) {
 			return;
 		}
 		
+		String jxQuery = String.format("/.[discordId='%s']", event.getAuthor().getId());
+		List<MCPlayer> mcps = JsonDB.database.find(jxQuery, MCPlayer.class);
+		MCPlayer mcp = null;
+		if (mcps.size() > 0) {
+			mcp = mcps.get(0);
+		}
+		
+		
+		
 		// send in all the relay channels.
 		for (String id: channels) {
 			if (id.equals(event.getTextChannel().getId()) && !event.getMessage().getContentDisplay().contains(minecraftPrefix)) {
+				
+				
+				
 				String message = String.format("&9%s &3%s -> &f%s", 
 						discordPrefix,
 						event.getAuthor().getName(),
 						event.getMessage().getContentDisplay());
 				
+				if (mcp.isLinked()) {
+					message = String.format("&9%s &3%s[%s] -> &f%s", 
+							discordPrefix,
+							event.getAuthor().getName(),
+							mcp.getMinecraftName(),
+							event.getMessage().getContentDisplay());
+				}
 				
 				String message2 = ChatColor.translateAlternateColorCodes('&', message);
 				Bukkit.broadcastMessage(message2);
@@ -111,9 +132,28 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	public void onPlayerChat(AsyncPlayerChatEvent e) {
 		if (!e.getMessage().startsWith(discordPrefix)) {
 			
+			MCPlayer mcp = JsonDB.database.findById(e.getPlayer().getUniqueId().toString(), MCPlayer.class);
+			
+			if (mcp == null) {
+				mcp = new MCPlayer();
+				mcp.setMinecraftName(e.getPlayer().getName());
+				mcp.setUuid(e.getPlayer().getUniqueId().toString());
+				mcp.setLinked(false);
+				JsonDB.database.upsert(mcp);
+			}
+			
+			
 			String preMessage = String.format("**%s** <:speech_balloon:691393503124520980> *%s* **->** ", 
 					minecraftPrefix,
-					e.getPlayer().getName());
+					mcp.getMinecraftName());
+			
+			if (mcp.isLinked()) {
+				preMessage = String.format("**%s** <:speech_balloon:691393503124520980> *%s[%s]* **->** ", 
+					minecraftPrefix,
+					mcp.getMinecraftName(),
+					mcp.getDiscordEffName());
+			}
+			
 			
 			String message = e.getMessage();
 			
@@ -138,37 +178,107 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
+		MCPlayer mcp = JsonDB.database.findById(e.getEntity().getUniqueId().toString(), MCPlayer.class);
+		
+		if (mcp == null) {
+			mcp = new MCPlayer();
+			mcp.setMinecraftName(e.getEntity().getName());
+			mcp.setUuid(e.getEntity().getUniqueId().toString());
+			mcp.setLinked(false);
+			JsonDB.database.upsert(mcp);
+		}
+		
+		
 		String message = String.format("""
 				**%s** *%s* **->** **%s** <:skull_crossbones:690567471618457631>
 				""", 
 				minecraftPrefix,
-				e.getEntity().getName(),
+				mcp.getMinecraftName(),
 				e.getDeathMessage());
+		
+		if (mcp.isLinked()) {
+			message = String.format("""
+				**%s** *%s[%s]* **->** **%s** <:skull_crossbones:690567471618457631>
+				""", 
+				minecraftPrefix,
+				mcp.getMinecraftName(),
+				mcp.getDiscordEffName(),
+				e.getDeathMessage());
+		}
 		
 		DiscordUtils.sendRelayMessage(message);
 	}
 	
 	@EventHandler
 	public void onPlayerLogin(PlayerLoginEvent e) {
+		MCPlayer mcp = JsonDB.database.findById(e.getPlayer().getUniqueId().toString(), MCPlayer.class);
+		
+		if (mcp == null) {
+			mcp = new MCPlayer();
+			mcp.setMinecraftName(e.getPlayer().getName());
+			mcp.setUuid(e.getPlayer().getUniqueId().toString());
+			mcp.setLinked(false);
+			JsonDB.database.upsert(mcp);
+		}
 		
 		String message = String.format("""
 				**%s** *<:inbox_tray:690567153371447327> Login -> %s* **->** %s
 				""",
 				minecraftPrefix,
-				e.getPlayer().getName(),
+				mcp.getMinecraftName(),
 				e.getResult());
+		
+		if (mcp.isLinked()) {
+			message = String.format("""
+					**%s** *<:inbox_tray:690567153371447327> Login -> %s[%s]* **->** %s
+					""",
+					minecraftPrefix,
+					mcp.getMinecraftName(),
+					mcp.getDiscordEffName(),
+					e.getResult());
+		}
+		
 		
 		DiscordUtils.sendRelayMessage(message);
 		DiscordUtils.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()+1) + " player(s)");
+		
+		if (!mcp.isLinked()) {
+			String message3 = "&4Discord Account Not Linked.";
+			String message4 = "&4To have your discord and minecraft names show up together in chat,"
+			+ "&r&4 use command \"!d link " + e.getPlayer().getName() +" \" in the #minecraft discord channel to link accounts.";
+			
+			e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', message3));
+			e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', message4));
+		}
+		
 	}
 	
 	@EventHandler
 	public void onPlayerLogout(PlayerQuitEvent e) {
+		MCPlayer mcp = JsonDB.database.findById(e.getPlayer().getUniqueId().toString(), MCPlayer.class);
+		
+		if (mcp == null) {
+			mcp = new MCPlayer();
+			mcp.setMinecraftName(e.getPlayer().getName());
+			mcp.setUuid(e.getPlayer().getUniqueId().toString());
+			mcp.setLinked(false);
+			JsonDB.database.upsert(mcp);
+		}
+		
 		String message = String.format("""
 				**%s** *<:outbox_tray:690566847774457857> Logout -> %s* **->** left the game
 				""",
 				minecraftPrefix,
-				e.getPlayer().getName());
+				mcp.getMinecraftName());
+		
+		if (mcp.isLinked()) {
+			message = String.format("""
+				**%s** *<:outbox_tray:690566847774457857> Logout -> %s[%s]* **->** left the game
+				""",
+				minecraftPrefix,
+				mcp.getMinecraftName(),
+				mcp.getDiscordEffName());
+		}
 		
 		DiscordUtils.sendRelayMessage(message);
 		DiscordUtils.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()-1) + " player(s)");
@@ -176,11 +286,31 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	
 	@EventHandler
 	public void OnPlayerKick(PlayerKickEvent e) {
+		MCPlayer mcp = JsonDB.database.findById(e.getPlayer().getUniqueId().toString(), MCPlayer.class);
+		
+		if (mcp == null) {
+			mcp = new MCPlayer();
+			mcp.setMinecraftName(e.getPlayer().getName());
+			mcp.setUuid(e.getPlayer().getUniqueId().toString());
+			mcp.setLinked(false);
+			JsonDB.database.upsert(mcp);
+		}
+		
 		String message = String.format("""
 				**%s** *<:boot:798924891961163817> Kicked -> %s* **->** left the game
 				""",
 				minecraftPrefix,
-				e.getPlayer().getName());
+				mcp.getMinecraftName());
+		
+		if (mcp.isLinked()) {
+			message = String.format("""
+				**%s** *<:boot:798924891961163817> Kicked -> %s[%s]* **->** left the game
+				""",
+				minecraftPrefix,
+				mcp.getMinecraftName(),
+				mcp.getDiscordEffName());
+		}
+		
 		
 		DiscordUtils.sendRelayMessage(message);
 		DiscordUtils.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()-1) + " player(s)");
@@ -189,12 +319,33 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	@EventHandler
 	public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e) {
 		if(e.getAdvancement().getKey().getKey().startsWith("story")) {
+			
+			MCPlayer mcp = JsonDB.database.findById(e.getPlayer().getUniqueId().toString(), MCPlayer.class);
+			
+			if (mcp == null) {
+				mcp = new MCPlayer();
+				mcp.setMinecraftName(e.getPlayer().getName());
+				mcp.setUuid(e.getPlayer().getUniqueId().toString());
+				mcp.setLinked(false);
+				JsonDB.database.upsert(mcp);
+			}
+			
 			String message = String.format("""
 					**%s** *<:trophy:690738524659646485> Advancement -> %s* **%s**
 					""",
 					minecraftPrefix,
-					e.getPlayer().getName(),
+					mcp.getMinecraftName(),
 					e.getAdvancement().getKey().getKey());
+			
+			if (mcp.isLinked()) {
+				message = String.format("""
+					**%s** *<:trophy:690738524659646485> Advancement -> %s[%s]* **%s**
+					""",
+					minecraftPrefix,
+					mcp.getMinecraftName(),
+					mcp.getDiscordEffName(),
+					e.getAdvancement().getKey().getKey());
+			}
 		
 			DiscordUtils.sendRelayMessage(message);
 		}
@@ -228,17 +379,40 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	// Raids
 	@EventHandler
 	public void onRaidTrigger(RaidTriggerEvent e) {
+		MCPlayer mcp = JsonDB.database.findById(e.getPlayer().getUniqueId().toString(), MCPlayer.class);
+		
+		if (mcp == null) {
+			mcp = new MCPlayer();
+			mcp.setMinecraftName(e.getPlayer().getName());
+			mcp.setUuid(e.getPlayer().getUniqueId().toString());
+			mcp.setLinked(false);
+			JsonDB.database.upsert(mcp);
+		}
+		
 		Raid r = e.getRaid();
 		Location loc = r.getLocation();
 		
-		String message = DiscordUtils.format(minecraftPrefix, "bold") 
+		String message = " ";
+		
+		if (mcp.isLinked()) {
+			message = DiscordUtils.format(minecraftPrefix, "bold") 
+				+ " " 
+				+ DiscordUtils.format("<:crossed_swords:698730737045864448> Raid -> " + mcp.getMinecraftName() + "[" + mcp.getDiscordEffName() +"]", "italics")
+				+ " " 
+				+ DiscordUtils.format("->", "bold") + " " + mcp.getMinecraftName() + "[" + mcp.getDiscordEffName() +"]" + "has triggered a " + r.getBadOmenLevel() + " raid at (" + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ").";
+			
+		} else {
+			message = DiscordUtils.format(minecraftPrefix, "bold") 
 				+ " " 
 				+ DiscordUtils.format("<:crossed_swords:698730737045864448> Raid -> " + e.getPlayer().getName(), "italics")
 				+ " " 
 				+ DiscordUtils.format("->", "bold") + " " + e.getPlayer().getName() + "has triggered a " + r.getBadOmenLevel() + " raid at (" + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ").";
-		
+			
+		}
+
 		String p1 = "&6" + e.getPlayer().getName() + "&4&lhas triggered a level " + (r.getBadOmenLevel()+1) + " raid at &c(" + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ")&4&l.";
 		String p2 = "&4Totals -> &cGroups: " + r.getTotalGroups() + ", Health: " + (r.getTotalHealth()+1) + ", Waves: " + r.getTotalWaves();
+		
 		
 		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p1));
 		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p2));

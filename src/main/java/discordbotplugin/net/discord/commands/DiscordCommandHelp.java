@@ -17,7 +17,8 @@ public class DiscordCommandHelp implements Consumer<CommandEvent> {
 				"discord_command_restart",
 				"discord_command_whitelist",
 				"discord_command_ban",
-				"discord_command_list"
+				"discord_command_list",
+				"discord_command_link"
 				};
 		
 		String message = "Commands you can use:\n";

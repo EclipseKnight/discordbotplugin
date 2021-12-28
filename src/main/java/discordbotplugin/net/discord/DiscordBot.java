@@ -27,6 +27,7 @@ import discordbotplugin.net.discord.commands.config.DiscordCommandConfiguration;
 import discordbotplugin.net.discord.commands.general.DiscordCommandBotTest;
 import discordbotplugin.net.discord.commands.general.DiscordCommandExecute;
 import discordbotplugin.net.discord.commands.general.DiscordCommandListPlayers;
+import discordbotplugin.net.discord.commands.link.DiscordCommandLink;
 import discordbotplugin.net.discord.commands.restart.DiscordCommandRestart;
 import discordbotplugin.net.discord.commands.whitelist.DiscordCommandWhitelist;
 import discordbotplugin.net.logger.Logger;
@@ -125,7 +126,8 @@ public class DiscordBot {
 				new DiscordCommandConfiguration(),
 				new DiscordCommandBan(),
 				new DiscordCommandUnban(),
-				new DiscordCommandExecute()
+				new DiscordCommandExecute(),
+				new DiscordCommandLink()
 				);
 		
 		// built command client
