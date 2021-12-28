@@ -13,7 +13,7 @@ public class JsonDB {
 
 	public static String dbFilesLocation = Launcher.uwd + File.separator + "plugins" + File.separator
 			+ "discordbotplugin" + File.separator + "database";
-	private static String baseScanPackage = "discordbotplugin.net.discord.database.documents";
+	private static String baseScanPackage = "discordbotplugin.net.database.documents";
 	public static JsonDBTemplate database;
 
 	public static void init() {
