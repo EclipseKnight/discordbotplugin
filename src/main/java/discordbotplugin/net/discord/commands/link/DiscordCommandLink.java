@@ -25,6 +25,10 @@ public class DiscordCommandLink extends Command {
 			return;
 		}
 		
+		if (event.getArgs().isBlank()) {
+			event.reply("Invalid Arguments: !d link <minecraftname>");
+		}
+		
 		String mcname = event.getArgs();
 		String discordName = event.getAuthor().getAsTag();
 		String discordId = event.getAuthor().getId();
@@ -46,7 +50,7 @@ public class DiscordCommandLink extends Command {
 			}
 		}
 		
-		event.reply("Player Link Failed... /nMake sure the player is logged into the server and the name is spelled correctly.");
+		event.reply("Player Link Failed... \nMake sure the player is logged into the server and the name is spelled correctly.");
 	}
 
 }

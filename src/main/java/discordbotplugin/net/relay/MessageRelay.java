@@ -25,6 +25,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -242,6 +243,20 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 		DiscordUtils.sendRelayMessage(message);
 		DiscordUtils.setBotStatus("Alpha Server: " + (Bukkit.getOnlinePlayers().size()+1) + " player(s)");
 		
+	}
+	
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent e) {
+		MCPlayer mcp = JsonDB.database.findById(e.getPlayer().getUniqueId().toString(), MCPlayer.class);
+		
+		if (mcp == null) {
+			mcp = new MCPlayer();
+			mcp.setMinecraftName(e.getPlayer().getName());
+			mcp.setUuid(e.getPlayer().getUniqueId().toString());
+			mcp.setLinked(false);
+			JsonDB.database.upsert(mcp);
+		}
+		
 		if (!mcp.isLinked()) {
 			String message3 = "&4Discord Account Not Linked.";
 			String message4 = "&4To have your discord and minecraft names show up together in chat,"
@@ -250,7 +265,6 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 			e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', message3));
 			e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', message4));
 		}
-		
 	}
 	
 	@EventHandler
