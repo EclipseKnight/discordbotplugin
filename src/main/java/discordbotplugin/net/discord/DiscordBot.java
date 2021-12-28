@@ -60,7 +60,7 @@ public class DiscordBot {
 	 */
 	private ArrayList<GatewayIntent> intents = new ArrayList<>();
 	
-	public static String prefix = "!c ";
+	public static String prefix = "!d ";
 	
 	public DiscordBot() {
 		// Load Configuration

@@ -10,8 +10,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>15</maven.compiler.source>
-		<maven.compiler.target>15</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 
 	<repositories>
@@ -33,6 +33,10 @@
 			<url>https://m2.dv8tion.net/releases</url>
 		</repository>
 
+		<repository>
+			<id>chew</id>
+			<url>https://m2.chew.pro/releases</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -49,7 +53,7 @@
 		<dependency>
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
-			<version>4.4.0_350</version>
+			<version>4.2.0_180</version>
 		</dependency>
 
 		<dependency>
@@ -58,8 +62,6 @@
 			<version>3.0.2</version>
 			<type>pom</type>
 		</dependency>
-
-
 
 
 		<!-- https://mvnrepository.com/artifact/commons-configuration/commons-configuration -->
@@ -79,7 +81,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>r05</version>
+			<version>[30.0-jre,)</version>
 		</dependency>
 
 		<dependency>

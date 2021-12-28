@@ -165,7 +165,7 @@ public class MessageRelay extends ListenerAdapter implements Listener {
 	@EventHandler
 	public void onPlayerLogout(PlayerQuitEvent e) {
 		String message = String.format("""
-				**%s** *<:outbox_tray:690566847774457857> Login -> %s* **->** left the game
+				**%s** *<:outbox_tray:690566847774457857> Logout -> %s* **->** left the game
 				""",
 				minecraftPrefix,
 				e.getPlayer().getName());
